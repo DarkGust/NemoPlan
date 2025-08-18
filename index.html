@@ -11,125 +11,46 @@
     }
     html,body{height:100%;background:var(--bg);color:var(--text);font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;}
     *{box-sizing:border-box}
-    .app{
-      display:grid; grid-template-columns: 1fr 2fr; gap:8px; padding:8px; height:100vh; width:100vw;
-    }
-    @media (max-width: 820px){ /* iPhone */
-      .app{grid-template-columns: 42% 58%; gap:6px; padding:6px}
-    }
+    .app{ display:grid; grid-template-columns: 1fr 2fr; gap:8px; padding:8px; height:100vh; width:100vw;}
+    @media (max-width: 820px){ .app{grid-template-columns: 42% 58%; gap:6px; padding:6px} }
     .panel{background:var(--card); border-radius:12px; padding:8px; min-height:0; box-shadow:0 2px 10px rgba(0,0,0,.25)}
     .title{font-weight:700; font-size:14px; color:var(--sub); letter-spacing:.3px; margin-bottom:6px}
-
-    /* Roster */
-    .roster{ display:flex; flex-direction:column; gap:6px; height:calc(100vh - 60px); overflow:auto;}
+    .roster{ display:flex; flex-direction:column; gap:6px; height:calc(100vh - 110px); overflow:auto;}
     .search{width:100%; padding:8px 10px; border-radius:10px; border:1px solid var(--muted); background:#0e121a; color:var(--text); font-size:14px; margin-bottom:6px}
     .chips{ display:flex; flex-wrap:wrap; gap:6px; align-content:flex-start }
-
     .chip{ user-select:none; -webkit-user-select:none; padding:6px 8px; border-radius:999px; background:var(--chip); border:1px solid #2a3147; color:var(--text); font-size:12px; line-height:1; display:inline-flex; align-items:center; gap:6px; cursor:grab; touch-action:none;}
     .chip[data-trainer="true"]{ background: var(--chip-trainer); border-color:#2b4a2e }
     .chip .tag{ font-weight:700; color:var(--sub); opacity:.9 }
     .chip:active{ cursor:grabbing }
-
-    /* Groups */
     .groups{ display:grid; grid-template-columns: 1fr 1fr; gap:8px; height:calc(100vh - 16px); overflow:auto }
     @media (max-width:820px){ .groups{ gap:6px } }
-
     .group{ background:var(--card); border:2px solid transparent; border-radius:12px; padding:8px; display:grid; grid-template-rows:auto auto 1fr; gap:6px; position:relative }
     .group.warn{ border-color: var(--ring); box-shadow:0 0 0 2px rgba(233,75,75,.2) inset }
     .group.ok{ border-color: var(--ring-ok); box-shadow:0 0 0 2px rgba(47,133,90,.16) inset }
-
     .row{ display:flex; gap:6px; align-items:center; flex-wrap:wrap }
     .time{ display:flex; gap:6px; align-items:center; flex-wrap:wrap }
     .time label{ font-size:11px; color:var(--sub) }
     select{ background:#0e121a; color:var(--text); border:1px solid var(--muted); border-radius:10px; padding:6px 8px; font-size:12px }
     .btn{ background:#0e121a; border:1px solid var(--muted); color:var(--text); padding:6px 8px; border-radius:10px; font-weight:700; font-size:12px }
-
     .pairs{ display:grid; grid-template-columns: 1fr; gap:6px }
     .pair{ background:var(--muted); border:1px dashed #3a4160; border-radius:12px; padding:6px; min-height:34px; display:flex; gap:6px; flex-wrap:wrap; align-content:flex-start }
-
     .dropping{ outline:2px dashed #5b7cff; outline-offset:2px }
     .full{ opacity:.7; filter:grayscale(.2) }
-
-    /* Drag ghost */
     .ghost{ position:fixed; left:0; top:0; z-index:9999; pointer-events:none; transform:translate(-9999px,-9999px); padding:6px 8px; border-radius:999px; background:#2b3350; border:1px solid #4b5578; box-shadow:0 6px 18px rgba(0,0,0,.35) }
+    .reset-btn{ margin-top:6px; width:100%; padding:6px; font-size:12px; background:#331111; border:1px solid #662222; border-radius:10px; color:#f88; font-weight:700; cursor:pointer; }
   </style>
 </head>
 <body>
   <div class="app">
-    <!-- Left: roster -->
     <section class="panel">
       <div class="title">Dykkerliste (træk til grupper)</div>
       <input id="search" class="search" placeholder="Søg…" autocomplete="off" />
       <div id="roster" class="chips" aria-label="Liste af dykkere og trænere"></div>
+      <button class="reset-btn" id="resetBtn">Reset alle grupper</button>
     </section>
 
-    <!-- Right: groups -->
-    <section class="groups">
-      <!-- 4 groups -->
-      <div class="group" data-group>
-        <div class="title">Gruppe 1</div>
-        <div class="time">
-          <label>Start:</label>
-          <select class="h start-h"></select><select class="m start-m"></select>
-          <button class="btn now-start">Nu!</button>
-          <label>Slut:</label>
-          <select class="h end-h"></select><select class="m end-m"></select>
-          <button class="btn now-end">Nu!</button>
-        </div>
-        <div class="pairs">
-          <div class="pair" data-pair></div>
-          <div class="pair" data-pair></div>
-          <div class="pair" data-pair></div>
-        </div>
-      </div>
-      <div class="group" data-group>
-        <div class="title">Gruppe 2</div>
-        <div class="time">
-          <label>Start:</label>
-          <select class="h start-h"></select><select class="m start-m"></select>
-          <button class="btn now-start">Nu!</button>
-          <label>Slut:</label>
-          <select class="h end-h"></select><select class="m end-m"></select>
-          <button class="btn now-end">Nu!</button>
-        </div>
-        <div class="pairs">
-          <div class="pair" data-pair></div>
-          <div class="pair" data-pair></div>
-          <div class="pair" data-pair></div>
-        </div>
-      </div>
-      <div class="group" data-group>
-        <div class="title">Gruppe 3</div>
-        <div class="time">
-          <label>Start:</label>
-          <select class="h start-h"></select><select class="m start-m"></select>
-          <button class="btn now-start">Nu!</button>
-          <label>Slut:</label>
-          <select class="h end-h"></select><select class="m end-m"></select>
-          <button class="btn now-end">Nu!</button>
-        </div>
-        <div class="pairs">
-          <div class="pair" data-pair></div>
-          <div class="pair" data-pair></div>
-          <div class="pair" data-pair></div>
-        </div>
-      </div>
-      <div class="group" data-group>
-        <div class="title">Gruppe 4</div>
-        <div class="time">
-          <label>Start:</label>
-          <select class="h start-h"></select><select class="m start-m"></select>
-          <button class="btn now-start">Nu!</button>
-          <label>Slut:</label>
-          <select class="h end-h"></select><select class="m end-m"></select>
-          <button class="btn now-end">Nu!</button>
-        </div>
-        <div class="pairs">
-          <div class="pair" data-pair></div>
-          <div class="pair" data-pair></div>
-          <div class="pair" data-pair></div>
-        </div>
-      </div>
+    <section class="groups" id="groupsContainer">
+      <!-- 4 grupper skabt dynamisk via JS -->
     </section>
   </div>
 
@@ -143,7 +64,6 @@
   <div id="ghost" class="ghost" hidden></div>
 
   <script>
-    // ---------- Data ----------
     const PEOPLE = [
       {name:"Bjørk", level:"*", trainer:false},
       {name:"Ditte", level:"**", trainer:false},
@@ -165,12 +85,12 @@
       {name:"Per", level:"(T)", trainer:true},
     ];
 
-    // sort order: *, **, ***, (T)
     const RANK = lvl => lvl === '*' ? 1 : lvl === '**' ? 2 : lvl === '***' ? 3 : 9;
     PEOPLE.sort((a,b)=> RANK(a.level) - RANK(b.level) || a.name.localeCompare(b.name,'da'));
 
     const rosterEl = document.getElementById('roster');
     const tmpl = document.getElementById('chip-template');
+    const groupsContainer = document.getElementById('groupsContainer');
 
     function makeChip(p){
       const n = tmpl.content.firstElementChild.cloneNode(true);
@@ -194,18 +114,15 @@
 
     renderRoster();
 
-    // Search
     document.getElementById('search').addEventListener('input', e=>{
       renderRoster(e.target.value.trim().toLowerCase());
     });
 
-    // Fill hour/min selects
     function pad2(n){ return (n<10? '0':'') + n }
-    function fillSelects(){
-      document.querySelectorAll('select.h').forEach(s=>{ s.innerHTML=''; for(let h=0; h<24; h++){ const o=document.createElement('option'); o.value=pad2(h); o.textContent=pad2(h); s.appendChild(o);} });
-      document.querySelectorAll('select.m').forEach(s=>{ s.innerHTML=''; for(let m=0; m<60; m++){ const o=document.createElement('option'); o.value=pad2(m); o.textContent=pad2(m); s.appendChild(o);} });
+    function fillSelects(sel){
+      sel.querySelectorAll('select.h').forEach(s=>{ s.innerHTML=''; for(let h=0;h<24;h++){ const o=document.createElement('option'); o.value=pad2(h); o.textContent=pad2(h); s.appendChild(o);}});
+      sel.querySelectorAll('select.m').forEach(s=>{ s.innerHTML=''; for(let m=0;m<60;m++){ const o=document.createElement('option'); o.value=pad2(m); o.textContent=pad2(m); s.appendChild(o);}});
     }
-    fillSelects();
 
     function setNow(groupEl, which){
       const d = new Date();
@@ -218,136 +135,55 @@
         groupEl.querySelector('.end-h').value = hh;
         groupEl.querySelector('.end-m').value = mm;
       }
+      saveState();
     }
 
-    document.querySelectorAll('.group').forEach(g=>{
+    for(let i=1;i<=4;i++){
+      const g = document.createElement('div');
+      g.className='group'; g.dataset.group=i;
+      g.innerHTML=`<div class="title">Gruppe ${i}</div>
+        <div class="time">
+          <label>Start:</label><select class="h start-h"></select><select class="m start-m"></select>
+          <button class="btn now-start">Nu!</button>
+          <label>Slut:</label><select class="h end-h"></select><select class="m end-m"></select>
+          <button class="btn now-end">Nu!</button>
+        </div>
+        <div class="pairs">
+          <div class="pair" data-pair></div>
+          <div class="pair" data-pair></div>
+          <div class="pair" data-pair></div>
+        </div>`;
+      groupsContainer.appendChild(g);
+      fillSelects(g);
       g.querySelector('.now-start').addEventListener('click',()=>setNow(g,'start'));
       g.querySelector('.now-end').addEventListener('click',()=>setNow(g,'end'));
-    });
-
-    // ---------- Drag & Drop (pointer-based, iOS friendly) ----------
-    let drag = null; // {el, ghost, startX,startY, dx,dy}
-    const ghost = document.getElementById('ghost');
-
-    function pointerDown(e){
-      const target = e.target.closest('.chip');
-      if(!target) return;
-      e.preventDefault();
-      const rect = target.getBoundingClientRect();
-      drag = {
-        el: target,
-        from: target.parentElement,
-        dx: (e.touches? e.touches[0].clientX : e.clientX) - rect.left,
-        dy: (e.touches? e.touches[0].clientY : e.clientY) - rect.top,
-      };
-      target.setAttribute('aria-grabbed','true');
-      ghost.textContent = target.textContent;
-      ghost.hidden = false;
-      ghost.style.transform = `translate(${rect.left}px,${rect.top}px)`;
-      document.addEventListener('pointermove', pointerMove, {passive:false});
-      document.addEventListener('pointerup', pointerUp, {passive:false, once:true});
-      document.addEventListener('touchmove', pointerMove, {passive:false});
-      document.addEventListener('touchend', pointerUp, {passive:false, once:true});
     }
 
-    function pointerMove(e){
-      if(!drag) return;
-      e.preventDefault();
-      const x = (e.touches? e.touches[0].clientX : (e.clientX||0));
-      const y = (e.touches? e.touches[0].clientY : (e.clientY||0));
-      ghost.style.transform = `translate(${x - drag.dx}px, ${y - drag.dy}px)`;
-
-      document.querySelectorAll('.dropping').forEach(el=>el.classList.remove('dropping'));
-      const el = document.elementFromPoint(x,y);
-      const drop = el && (el.closest('.pair') || el.closest('#roster'));
-      if(drop){ drop.classList.add('dropping'); }
-    }
-
-    function canDropInto(container, chip){
-      if(!container) return false;
-      if(container.id === 'roster') return true; // infinite
-      if(container.classList.contains('pair')){
-        // capacity 2 per pair
-        const count = [...container.querySelectorAll('.chip')].length;
-        if(count >= 2) return false;
-        // prevent duplicate same person in same pair
-        const name = chip.dataset.name;
-        if([...container.querySelectorAll('.chip')].some(c=>c.dataset.name===name)) return false;
-        return true;
-      }
-      return false;
-    }
-
-    function pointerUp(e){
-      if(!drag) return;
-      const x = (e.changedTouches? e.changedTouches[0].clientX : (e.clientX||0));
-      const y = (e.changedTouches? e.changedTouches[0].clientY : (e.clientY||0));
-      const el = document.elementFromPoint(x,y);
-      const drop = el && (el.closest('.pair') || el.closest('#roster'));
-
-      // Remove highlight
-      document.querySelectorAll('.dropping').forEach(el=>el.classList.remove('dropping'));
-
-      // execute move if allowed
-      if(canDropInto(drop, drag.el)){
-        drag.el.remove();
-        drop.appendChild(drag.el);
-        drop.classList.remove('full');
-        // if a pair is now full, mark it
-        if(drop.classList.contains('pair')){
-          const count = [...drop.querySelectorAll('.chip')].length;
-          if(count >= 2) drop.classList.add('full'); else drop.classList.remove('full');
-        }
-      }
-
-      ghost.hidden = true; ghost.textContent = '';
-      drag.el.setAttribute('aria-grabbed','false');
-      drag = null;
-      updateGroupRings();
-    }
-
-    // Event delegation for starting drag on both mouse/touch
+    let drag=null; const ghost=document.getElementById('ghost');
+    function pointerDown(e){ const target = e.target.closest('.chip'); if(!target) return; e.preventDefault(); const rect = target.getBoundingClientRect(); drag = {el: target, from: target.parentElement, dx:(e.touches?e.touches[0].clientX:e.clientX)-rect.left, dy:(e.touches?e.touches[0].clientY:e.clientY)-rect.top}; target.setAttribute('aria-grabbed','true'); ghost.textContent=target.textContent; ghost.hidden=false; ghost.style.transform=`translate(${rect.left}px,${rect.top}px)`; document.addEventListener('pointermove', pointerMove, {passive:false}); document.addEventListener('pointerup', pointerUp, {passive:false,once:true}); document.addEventListener('touchmove', pointerMove, {passive:false}); document.addEventListener('touchend', pointerUp, {passive:false,once:true});}
+    function pointerMove(e){ if(!drag) return; e.preventDefault(); const x=(e.touches?e.touches[0].clientX:e.clientX); const y=(e.touches?e.touches[0].clientY:e.clientY); ghost.style.transform=`translate(${x-drag.dx}px,${y-drag.dy}px)`; document.querySelectorAll('.dropping').forEach(el=>el.classList.remove('dropping')); const el=document.elementFromPoint(x,y); const drop=el&&(el.closest('.pair')||el.closest('#roster')); if(drop) drop.classList.add('dropping'); }
+    function canDropInto(container,chip){ if(!container) return false; if(container.id==='roster') return true; if(container.classList.contains('pair')){ const count=[...container.querySelectorAll('.chip')].length; if(count>=2) return false; const name=chip.dataset.name; if([...container.querySelectorAll('.chip')].some(c=>c.dataset.name===name)) return false; return true;} return false;}
+    function pointerUp(e){ if(!drag) return; const x=(e.changedTouches?e.changedTouches[0].clientX:e.clientX); const y=(e.changedTouches?e.changedTouches[0].clientY:e.clientY); const el=document.elementFromPoint(x,y); const drop=el&&(el.closest('.pair')||el.closest('#roster')); document.querySelectorAll('.dropping').forEach(el=>el.classList.remove('dropping')); if(canDropInto(drop,drag.el)){ drag.el.remove(); drop.appendChild(drag.el); if(drop.classList.contains('pair')){ const count=[...drop.querySelectorAll('.chip')].length; drop.classList.toggle('full',count>=2); }} ghost.hidden=true; ghost.textContent=''; drag.el.setAttribute('aria-grabbed','false'); drag=null; updateGroupRings(); saveState(); }
     document.addEventListener('pointerdown', pointerDown, {passive:false});
-    document.addEventListener('touchstart', function(e){
-      const t = e.target.closest('.chip');
-      if(t){ pointerDown(e); }
-    }, {passive:false});
+    document.addEventListener('touchstart', e=>{ const t=e.target.closest('.chip'); if(t) pointerDown(e);},{passive:false});
+    document.addEventListener('dblclick', e=>{ const c=e.target.closest('.chip'); if(!c) return; if(c.parentElement&&c.parentElement.id!=='roster'){ c.remove(); rosterEl.appendChild(c); updateGroupRings(); saveState(); }});
 
-    // Allow tap-to-return from a pair back to roster (accessibility quick action)
-    document.addEventListener('dblclick', (e)=>{
-      const c = e.target.closest('.chip');
-      if(!c) return;
-      if(c.parentElement && c.parentElement.id !== 'roster'){
-        c.remove(); rosterEl.appendChild(c); updateGroupRings();
-      }
-    });
+    function groupHasTrainer(groupEl){ return !!groupEl.querySelector('.chip[data-trainer="true"]'); }
+    function updateGroupRings(){ document.querySelectorAll('.group').forEach(g=>{ const ok=groupHasTrainer(g); g.classList.toggle('ok',ok); g.classList.toggle('warn',!ok); }); document.querySelectorAll('.pair').forEach(p=>{ const count=p.querySelectorAll('.chip').length; p.classList.toggle('full',count>=2); }); }
 
-    // Initialize roster chips into DOM
-    // (use the already-rendered roster)
+    function saveState(){ const data={groups:[]}; document.querySelectorAll('.group').forEach(g=>{ const groupData={startH:g.querySelector('.start-h').value,endH:g.querySelector('.end-h').value,startM:g.querySelector('.start-m').value,endM:g.querySelector('.end-m').value,pairs:[]}; g.querySelectorAll('.pair').forEach(p=>{ const arr=[...p.querySelectorAll('.chip')].map(c=>({name:c.dataset.name,level:c.dataset.level,trainer:c.dataset.trainer})); groupData.pairs.push(arr); }); data.groups.push(groupData); }); localStorage.setItem('dykkerApp',JSON.stringify(data)); }
+    function loadState(){ const data=JSON.parse(localStorage.getItem('dykkerApp')||'{}'); if(!data.groups) return; const gs=document.querySelectorAll('.group'); gs.forEach((g,gi)=>{ const gd=data.groups[gi]; if(!gd) return; g.querySelector('.start-h').value=gd.startH; g.querySelector('.start-m').value=gd.startM; g.querySelector('.end-h').value=gd.endH; g.querySelector('.end-m').value=gd.endM; g.querySelectorAll('.pair').forEach((p,pi)=>{ p.innerHTML=''; if(!gd.pairs[pi]) return; gd.pairs[pi].forEach(cdata=>{ const c=makeChip({name:cdata.name,level:cdata.level,trainer:cdata.trainer==='true'}); p.appendChild(c); }); }); }); updateGroupRings(); }
 
-    // ---------- Group trainer highlight ----------
-    function groupHasTrainer(groupEl){
-      return !!groupEl.querySelector('.chip[data-trainer="true"]');
-    }
-    function updateGroupRings(){
-      document.querySelectorAll('.group').forEach(g=>{
-        const ok = groupHasTrainer(g);
-        g.classList.toggle('ok', ok);
-        g.classList.toggle('warn', !ok);
-      });
-      // mark full pairs
-      document.querySelectorAll('.pair').forEach(p=>{
-        const count = p.querySelectorAll('.chip').length;
-        p.classList.toggle('full', count>=2);
-      })
-    }
+    loadState();
 
-    // After initial render, set warnings
-    updateGroupRings();
-
-    // Make roster initially populated with chips
-    // (already done in renderRoster) and ensure chips draggable
-
-  </script>
-</body>
-</html>
+    document.getElementById('resetBtn').addEventListener('click',()=>{
+      if(confirm('Er du sikker på, du vil nulstille alle grupper?')){
+        document.querySelectorAll('.group').forEach(g=>{
+          g.querySelectorAll('.pair').forEach(p=>p.innerHTML='');
+          g.querySelector('.start-h').value='00';
+          g.querySelector('.start-m').value='00';
+          g.querySelector('.end-h').value='00';
+          g.querySelector('.end-m').value='00';
+        });
+        updateGroupRings();
+        local
