@@ -54,7 +54,6 @@ const PEOPLE=[
   {name:"Tilde", level:"*", trainer:false}, {name:"Anton", level:"(T)", trainer:true}, {name:"Frederikke", level:"(T)", trainer:true},
   {name:"Katrine", level:"(T)", trainer:true}, {name:"Nicki", level:"(T)", trainer:true}, {name:"Per", level:"(T)", trainer:true}
 ];
-
 const RANK=lvl=>lvl==='*'?1:lvl==='**'?2:lvl==='***'?3:9;
 PEOPLE.sort((a,b)=>RANK(a.level)-RANK(b.level)||a.name.localeCompare(b.name,'da'));
 
@@ -69,12 +68,14 @@ function makeChip(p){
   n.dataset.name=p.name;
   n.dataset.level=p.level;
   n.dataset.trainer=String(!!p.trainer);
+  n.draggable=true;
+  n.addEventListener('dragstart', e=>{e.dataTransfer.setData('text/plain', p.name); setTimeout(()=>n.style.display='none',0);});
+  n.addEventListener('dragend', e=>{ n.style.display='flex'; saveState(); updateGroupRings(); });
   return n;
 }
 
 function renderRoster(filter=''){ rosterEl.innerHTML=''; PEOPLE.forEach(p=>{ if(filter&&!(p.name+' '+p.level).toLowerCase().includes(filter))return; rosterEl.appendChild(makeChip(p)); }); }
 renderRoster();
-
 document.getElementById('search').addEventListener('input', e=>renderRoster(e.target.value.trim().toLowerCase()));
 
 function pad2(n){return (n<10?'0':'')+n}
@@ -98,8 +99,15 @@ function createGroups(){
       </div>`;
     groupsContainer.appendChild(g);
     fillSelects(g);
-    g.querySelector('.now-start').addEventListener('click',()=>{ const d=new Date(); g.querySelector('.start-h').value=pad2(d.getHours()); g.querySelector('.start-m').value=pad2(d.getMinutes()); saveState(); });
-    g.querySelector('.now-end').addEventListener('click',()=>{ const d=new Date(); g.querySelector('.end-h').value=pad2(d.getHours()); g.querySelector('.end-m').value=pad2(d.getMinutes()); saveState(); });
+    ['start','end'].forEach(which=>{
+      g.querySelector(`.now-${which}`).addEventListener('click',()=>{
+        const d=new Date();
+        g.querySelector(`.${which}-h`).value=pad2(d.getHours());
+        g.querySelector(`.${which}-m`).value=pad2(d.getMinutes());
+        saveState();
+      });
+    });
+    g.querySelectorAll('select').forEach(sel=>sel.addEventListener('change', saveState));
   }
 }
 createGroups();
@@ -114,16 +122,22 @@ loadState();
 
 document.getElementById('resetBtn').addEventListener('click',()=>{
   if(confirm('Er du sikker på, du vil nulstille alle grupper?')){
-    document.querySelectorAll('.group').forEach(g=>{ g.querySelectorAll('.pair').forEach(p=>p.innerHTML=''); g.querySelector('.start-h').value='00'; g.querySelector('.start-m').value='00'; g.querySelector('.end-h').value='00'; g.querySelector('.end-m').value='00'; });
+    document.querySelectorAll('.group').forEach(g=>{ g.querySelectorAll('.pair').forEach(p=>p.innerHTML=''); g.querySelectorAll('select').forEach(s=>s.value='00'); });
     updateGroupRings();
     localStorage.removeItem('dykkerApp');
   }
 });
 
-// Simpelt drag & drop
-let drag=null;
-document.addEventListener('pointerdown',e=>{ const c=e.target.closest('.chip'); if(!c) return; drag={el:c,from:c.parentElement,dx:e.clientX,dy:e.clientY}; c.style.opacity='0.5'; });
-document.addEventListener('pointerup',e=>{ if(!drag) return; const drop=document.elementFromPoint(e.clientX,e.clientY).closest('.pair')||document.getElementById('roster'); if(drop){ drag.el.remove(); drop.appendChild(drag.el); updateGroupRings(); saveState(); } drag.el.style.opacity='1'; drag=null; });
+// Drag & Drop funktionalitet
+document.querySelectorAll('.pair, #roster').forEach(d=>{
+  d.addEventListener('dragover', e=>e.preventDefault());
+  d.addEventListener('drop', e=>{
+    e.preventDefault();
+    const name=e.dataTransfer.getData('text/plain');
+    const chip=[...document.querySelectorAll('.chip')].find(c=>c.dataset.name===name);
+    if(chip){ e.currentTarget.appendChild(chip); updateGroupRings(); saveState(); }
+  });
+});
 </script>
 </body>
 </html>
